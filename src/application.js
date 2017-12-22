@@ -24,7 +24,7 @@ class Jungle {
 		//orbit controls is used just in the debug modus
 		this.bgColor = new THREE.Color(0.1, 0.1, 0.1);
 		this.clock = new THREE.Clock();
-		this.done = false
+		this.stop = true
 		this.gui,
 		this.scene,
 		this.renderer,
@@ -58,6 +58,7 @@ class Jungle {
       redirectURL: 'http://www.apeunit.com/en/'
     }
     Object.assign(this.options, options)
+    this.init()
 	}
 
 
@@ -91,7 +92,6 @@ class Jungle {
 		this.addGui();
 
 		//scenography
-		this.fadeIn()
 		this.scenography = new Scenography(this.camera, this.spline, this.t, params.cameraSpeed, this.fadeOut.bind(this));
 		//stats
 		// stats = new Stats();
@@ -106,18 +106,18 @@ class Jungle {
 		});
 
 		this.addStats();
-		this.render();
 	};
 
 	render () {
-		if (this.done || !this.renderer) return
-		this.time = this.clock.getElapsedTime() - this.startTime;
-		// stats.begin();
-		this.scenography.update(params.cameraSpeed, params.stop, this.time);
-		this.pool.update(this.scenography.getCameraPositionOnSpline());
-		this.renderer && this.renderer.render(this.scene, this.camera);
-		// stats.end();
-		if (!this.done) requestAnimationFrame(this.render.bind(this));
+		if (!this.stop) {
+			this.time = this.clock.getElapsedTime() - this.startTime;
+			// stats.begin();
+			this.scenography.update(params.cameraSpeed, params.stop, this.time);
+			this.pool.update(this.scenography.getCameraPositionOnSpline());
+			this.renderer && this.renderer.render(this.scene, this.camera);
+			// stats.end();
+			requestAnimationFrame(this.render.bind(this));
+		}
 	};
 
 	addStats () {
@@ -133,48 +133,51 @@ class Jungle {
 		}
 	};
 
-	fadeIn () {
-		if (this.bgColor.r > 1.0){
-			this.bgColor.r -= this.LIGHT_INCREASE;
-			this.bgColor.g -= this.LIGHT_INCREASE;
-			this.bgColor.b -= this.LIGHT_INCREASE;
+	fade (plusMinus = 1, cb = function () {}) {
+		for (let j = 0; j < 1000; j++) {
+			this.bgColor.r += this.LIGHT_INCREASE * plusMinus;
+			this.bgColor.g += this.LIGHT_INCREASE * plusMinus;
+			this.bgColor.b += this.LIGHT_INCREASE * plusMinus;
 			this.renderer.setClearColor(this.bgColor.getHex());
 
-			this.scene.fog.color.r -= this.LIGHT_INCREASE;
-			this.scene.fog.color.g -= this.LIGHT_INCREASE;
-			this.scene.fog.color.b -= this.LIGHT_INCREASE;
+			this.scene.fog.color.r += this.LIGHT_INCREASE * plusMinus;
+			this.scene.fog.color.g += this.LIGHT_INCREASE * plusMinus;
+			this.scene.fog.color.b += this.LIGHT_INCREASE * plusMinus;
 
 			for (let i = 0; i < materials.length; i++){
-				makeMaterialBrighter(materials[i], (-1 * this.LIGHT_INCREASE));
+				makeMaterialBrighter(materials[i], (plusMinus * this.LIGHT_INCREASE));
 			}
 		}
+		cb()
 	}
 
+	run () {
+		this.stop = false
+		this.render()
+	}
+
+	end () {
+	  this.stop = true
+	}
+
+
 	fadeOut () {
-		if (this.bgColor.r < 1.0){
-			this.bgColor.r += this.LIGHT_INCREASE;
-			this.bgColor.g += this.LIGHT_INCREASE;
-			this.bgColor.b += this.LIGHT_INCREASE;
-			this.renderer.setClearColor(this.bgColor.getHex());
+	  this.emit('complete');
+		// this.fade(1, () => {
+		// 	if (this.options.redirect){
+		// 		window.location.replace(this.options.redirectURL);
+		// 	} else {	
 
-			this.scene.fog.color.r += this.LIGHT_INCREASE;
-			this.scene.fog.color.g += this.LIGHT_INCREASE;
-			this.scene.fog.color.b += this.LIGHT_INCREASE;
-
-			for (let i = 0; i < materials.length; i++){
-				makeMaterialBrighter(materials[i], this.LIGHT_INCREASE);
-			}
-		} else if (this.options.redirect){
-			window.location.replace(this.options.redirectURL);
-		} else {
-	    this.done = true
-			this.renderer.forceContextLoss();
-			this.renderer.context = null;
-			this.renderer.domElement = null;
-			this.renderer = null;
-	    this.emit('complete');
-		}
-	};	
+		//     this.emit('complete');
+		// 		this.fade(-1)
+		//     this.done = true
+		// 		this.renderer.forceContextLoss();
+		// 		this.renderer.context = null;
+		// 		this.renderer.domElement = null;
+		// 		this.renderer = null;
+		// 	}
+		// })
+	}	
 }
 
 Emitter.mixin(Jungle);
