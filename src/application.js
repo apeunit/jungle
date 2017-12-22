@@ -109,6 +109,7 @@ class Jungle {
 	};
 
 	render () {
+		console.log('render')
 		if (!this.stop) {
 			this.time = this.clock.getElapsedTime() - this.startTime;
 			// stats.begin();
@@ -152,6 +153,7 @@ class Jungle {
 	}
 
 	run () {
+		this.clock = new THREE.Clock();
 		this.stop = false
 		this.render()
 	}
