@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "jungle",
+  "name": "apeunit-jungle",
   "version": "0.0.1",
   "main": "src/application.js",
   "description": "Using Three.js with Webpack 2",
