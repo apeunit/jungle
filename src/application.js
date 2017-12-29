@@ -49,7 +49,7 @@ const distance_from_path = 40;
 const prepareGeometries = () => {
 	spline = createPath(radius, radius_offset);
 	scene = new THREE.Scene();
-	scene.fog = new THREE.FogExp2( bgColor.getHex(), 0.012, 100 );
+	scene.fog = new THREE.FogExp2( bgColor.getHex(), 0.016, 100 );
 	scene.background = bgColor;
 	pool = new Pool(poolSize, scene, spline, percent_covered, distance_from_path, materials);
 	return pool;
@@ -73,7 +73,7 @@ const init = () => {
 	addGui(debug, light);
 
 	//scenography
-	scenography = new Scenography(camera, spline, t, gui.params.cameraSpeed, fadeToWhite);
+	scenography = new Scenography(camera, spline, t, fadeToWhite, gui);
 	//stats
 	stats = new Stats();
 	stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -87,17 +87,22 @@ const init = () => {
 	});
 
 	addStats(debug);
-	render();
+	animate();
 };
+
+const animate = () => {
+	requestAnimationFrame(animate);
+	stats.begin();
+	render();
+	stats.end();
+}
 
 const render = () => {
 	const time = clock.getElapsedTime() - startTime;
-	stats.begin();
-	scenography.update(gui.params.cameraSpeed, gui.params.stop, time);
+	//stats.begin();
+	scenography.update(time, gui);
 	pool.update(scenography.getCameraPositionOnSpline());
 	renderer.render(scene, camera);
-	stats.end();
-	requestAnimationFrame(render);
 };
 
 const addStats = debug => {
