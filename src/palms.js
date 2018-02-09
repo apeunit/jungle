@@ -1,7 +1,7 @@
 import PalmGenerator from './PalmGenerator.js';
 import { BoxGeometry, BufferAttribute, BufferGeometry, Vector3, CatmullRomCurve3 } from 'three';
 import LeafGeometry from './LeafGeometry.js';
-const N_PALMS = 3;
+const N_PALMS = 6;
 //const N_PALMS = 6;
 
 export default class Palms {
@@ -17,15 +17,19 @@ export default class Palms {
 
 			const geometry = palm.geometry;
 			const bufGeometry = new BufferGeometry().fromGeometry(geometry);
-			const palmBuffers = palm.buffers;
-			bufGeometry.addAttribute('color', new BufferAttribute(palmBuffers.color, 3));
-			//bufGeometry.attributes.color.needsUpdate = true;
-			const tot_vert = palmBuffers.totVertices;
-			const tot_vert_foliage = palmBuffers.totFoliageVertices;
 
+			const palmBuffers = palm.buffers;
 			bufGeometry.clearGroups();
-			bufGeometry.addGroup(0, tot_vert_foliage, 0);
-			bufGeometry.addGroup(tot_vert_foliage, tot_vert, 1);
+			if(palmBuffers !== undefined){
+				bufGeometry.addAttribute('color', new BufferAttribute(palmBuffers.color, 3));
+				//bufGeometry.attributes.color.needsUpdate = true;
+				const tot_vert = palmBuffers.totVertices;
+				const tot_vert_foliage = palmBuffers.totFoliageVertices;
+				
+				bufGeometry.addGroup(0, tot_vert_foliage, 0);
+				bufGeometry.addGroup(tot_vert_foliage, tot_vert, 1);
+			}
+
 			palms.push(bufGeometry);
 		}
 		return palms;
@@ -122,7 +126,7 @@ export default class Palms {
 			growth: 0.25,
 			foliage_start_at: 42,
 			trunk_regular: true,
-			buffers: true,
+			buffers: false,
 			angle_open: 75.87,
 			starting_angle_open: 51.65
 		};
@@ -131,7 +135,7 @@ export default class Palms {
 			angle: 137.14,
 			num: 100,
 			growth: 0.2,
-			buffers: true,
+			buffers: false,
 			foliage_start_at: 40,
 			angle_open: 0,
 			starting_angle_open: 52,
@@ -145,7 +149,7 @@ export default class Palms {
 			growth: 0.01,
 			foliage_start_at: 23,
 			trunk_regular: true,
-			buffers: true,
+			buffers: false,
 			angle_open: 36.46,
 			starting_angle_open: 50
 		};
@@ -157,7 +161,7 @@ export default class Palms {
 			growth: 0.12,
 			foliage_start_at: 66,
 			trunk_regular: false,
-			buffers: true,
+			buffers: false,
 			angle_open: 36.17,
 			starting_angle_open: 50
 		};
@@ -169,7 +173,7 @@ export default class Palms {
 			growth: 0.18,
 			foliage_start_at: 13,
 			trunk_regular: false,
-			buffers: true,
+			buffers: false,
 			angle_open: 0,
 			starting_angle_open: 50
 		};
@@ -179,7 +183,7 @@ export default class Palms {
 			angle: 137.14,
 			num: 70,
 			growth: 0.05,
-			buffers: true,
+			buffers: false,
 			foliage_start_at: 28,
 			angle_open: 30,
 			starting_angle_open: 12,

@@ -1,26 +1,21 @@
 import { map } from './helpers.js';
 import { BoxGeometry, Mesh, VertexColors, NoColors } from 'three';
 import {
-	DURATION,
-	DURATION_MOVE_UP_PERCENT,
 	CAMERA_LOOK_FORWARD,
-	CAMERA_HIGHEST_POSITION_LOOKAT,
-	CAMERA_LOWEST_POSITION_LOOKAT,
 	CAMERA_HEIGHT,
 	DEFAULT_SPEED
 } from './const';
 
 export default class Scenography {
-	constructor(camera, spline, t, fadeCallback, gui){
+	constructor(camera, spline, t, gui){
 		this.spline = spline;
 		this.camera = camera;
 		this.t = t;
 		this.cameraSpeed = (gui !== undefined) ? gui.params.cameraSpeed : DEFAULT_SPEED;
-		this.fadeCallback = fadeCallback;
 		this.camera = camera;
 	}
 
-	update(elapsedSeconds, gui){
+	update(gui, mouseY){
 		let speed, stop;
 		if(gui){
 			speed = gui.params.cameraSpeed;
@@ -34,60 +29,55 @@ export default class Scenography {
 		if (stop){
 			return;
 		}
-		if (elapsedSeconds > DURATION){
-			this.fadeCallback();
-			//return true;
-			// should we stop the camera? the camera move unless we are voer the duration
+
+		this._moveCamera(mouseY);
+	}
+
+	_moveCamera(mouseY){
+		let resetValue = this.cameraSpeed; // once the circuit is finished, the camera 
+		// is moved back to the original point
+
+		// the lookAt position is just CAMERA_LOOK_FORWARD points ahead the current position
+		const next = this.t + CAMERA_LOOK_FORWARD;
+		let look;
+		let camPos;
+
+		// lookAt position
+		if (next >= 1.0) {
+			let diff = 1.0 - this.t;
+			look = this.spline.getPoint(CAMERA_LOOK_FORWARD-diff);
+		} else {
+			look = this.spline.getPoint(next);
 		}
-		this._moveCamera(elapsedSeconds);
+		
+		// camera position
+		if (this.t >= 1.0) {
+			this.t = resetValue;
+		} else {
+			this.t += this.cameraSpeed
+		}
+		camPos = this.spline.getPoint(this.t);
+
+		this._setLookUp(camPos, look, mouseY);
 	}
 
-	_moveCamera(elapsedSeconds){
-		const camPos = this.spline.getPoint(this.t);
-		// the lookAt position is just 20 points ahead the current position
-		// but when we are close to the end of the path, the look at point
-		// is the first point in the curve
-		const next = this.t + this.cameraSpeed + CAMERA_LOOK_FORWARD;
-		const lookAtPoint = next > 1 ? 0 : next;
-		//console.log(lookAtPoint);
-		const look = this.spline.getPoint(lookAtPoint);
-
-		// this is the place where the camera look up at a certain moment
-		this._setLookUp(camPos, look, elapsedSeconds);
-		const limit = 1 - this.cameraSpeed;
-		this.t = this.t >= limit ? 0 : (this.t += this.cameraSpeed);
-	}
-
-	_setLookUp(camPos, look, elapsedSeconds){
+	_setLookUp(camPos, look, mouseY){
+		
+		console.log(mouseY);
 		const cameraY = CAMERA_HEIGHT;
-		//move camera forward
 		this.camera.position.set(camPos.x, cameraY, camPos.z);
-		look.y = this._getCameraLooKY(elapsedSeconds);
+		// the camera always look a bit depending on mouse y position
+		let y = this._calcHeight(mouseY);
+		look.y = y;
 		this.camera.lookAt(look);
 	}
 
-	_getCameraLooKY(elapsedSeconds){
-		const timing = this._getTimingLookUp();
-		let cameraYLookAt;
-		if (elapsedSeconds > timing.end){
-			cameraYLookAt = CAMERA_HIGHEST_POSITION_LOOKAT;
-		} else if (elapsedSeconds < timing.start){
-			cameraYLookAt = CAMERA_LOWEST_POSITION_LOOKAT;
-		} else {
-			cameraYLookAt = map(elapsedSeconds, timing.start, timing.end, CAMERA_LOWEST_POSITION_LOOKAT, CAMERA_HIGHEST_POSITION_LOOKAT);
+	_calcHeight(mouseY){
+		if (mouseY === undefined) {
+			return 30;
+		}else{
+			return map(mouseY, 0, 1, 60, 20);
 		}
-		return cameraYLookAt;
-	}
-
-	_getTimingLookUp(){
-		//const half = DURATION / 2.0;
-		const half = DURATION/4.50;
-		// start the camera movement at one third of the animation
-		const durationLookUp = DURATION * DURATION_MOVE_UP_PERCENT;
-		return {
-			start: half - durationLookUp / 2.0,
-			end: half + durationLookUp / 2.0
-		};
 	}
 
 	getCameraPositionOnSpline(){
