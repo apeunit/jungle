@@ -54,16 +54,17 @@ const prepareGeometries = () => {
 	return pool;
 };
 
-const init = () => {
+const init = (canvas) => {
 	prepareGeometries();
 	startTime = clock.getElapsedTime();
 	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.3, 260);
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	// renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 	//renderer.setClearColor(0xff5050, 0); // the default
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.body.style.margin = 0;
-	document.body.appendChild(renderer.domElement);
+	// document.body.style.margin = 0;
+	// document.body.appendChild(renderer.domElement);
 	if (debug){
 		controls = new OrbitControls(camera, renderer.domElement);
 	}
