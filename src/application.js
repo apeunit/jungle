@@ -54,6 +54,10 @@ const prepareGeometries = () => {
 	return pool;
 };
 
+const kill = () => {
+  pool.clear();
+  renderer.forceContextLoss();
+}
 const init = (canvas) => {
 	prepareGeometries();
 	startTime = clock.getElapsedTime();
@@ -131,4 +135,4 @@ const addGui = (debug, ambientLight) => {
 	}
 };
 
-export default {init};
+export default {init, kill};
