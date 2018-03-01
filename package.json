@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "example",
+  "version": "0.0.1",
   "description": "Using Three.js with Webpack 2",
   "engines": {
     "node": ">=7.0.0"
