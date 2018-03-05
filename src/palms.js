@@ -37,9 +37,9 @@ export default class Palms {
 			num: 150,
 			growth: 0.25,
 			foliage_start_at: 42,
-			trunk_regular: true,
+			trunk_regular: false,
 			buffers: false,
-			angle_open: 16.87,
+			angle_open: 35.87,
 			starting_angle_open: 51.65
 		};
 	}
