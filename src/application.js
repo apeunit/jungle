@@ -1,6 +1,5 @@
 /* eslint-env browser */
 import * as THREE from 'three';
-import $ from 'jquery';
 import Gui from './gui.js';
 import Stats from 'stats.js';
 import { createPath } from './path.js';
@@ -8,6 +7,7 @@ import Scenography from './scenography.js';
 import Pool from './pool.js';
 import { materials } from './materials.js';
 import ColorChanger from './colorChanger.js';
+
 
 //orbit controls is used just in the debug modus
 const OrbitControls = require('three-orbit-controls')(THREE);
@@ -54,16 +54,21 @@ const prepareGeometries = () => {
 	return pool;
 };
 
-const init = () => {
+const kill = () => {
+  pool.clear();
+  renderer.forceContextLoss();
+}
+const init = (canvas) => {
 	prepareGeometries();
 	startTime = clock.getElapsedTime();
 	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.3, 260);
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	// renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
 	//renderer.setClearColor(0xff5050, 0); // the default
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.body.style.margin = 0;
-	document.body.appendChild(renderer.domElement);
+	// document.body.style.margin = 0;
+	// document.body.appendChild(renderer.domElement);
 	if (debug){
 		controls = new OrbitControls(camera, renderer.domElement);
 	}
@@ -76,20 +81,28 @@ const init = () => {
 	//stats
 	stats = new Stats();
 	stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+	var wait = false;
 
 	window.addEventListener('resize', () => {
-		let WIDTH = window.innerWidth,
-			HEIGHT = window.innerHeight;
-		renderer.setSize(WIDTH, HEIGHT);
-		camera.aspect = WIDTH / HEIGHT;
-		camera.updateProjectionMatrix();
+		if(!wait){
+			let WIDTH = window.innerWidth,
+				HEIGHT = window.innerHeight;
+			renderer.setSize(WIDTH, HEIGHT);
+			camera.aspect = WIDTH / HEIGHT;
+			camera.updateProjectionMatrix();      
+			// wait = true;
+      // setTimeout(function(){ wait = false; },200);
+		}
 	});
-
 	window.addEventListener('mousemove', (e) => {
-		let x = e.clientX/window.innerWidth;
-		let y = e.clientY/window.innerHeight;
-		mouseY = y;
-		colorChanger.update(x, y);
+    if(!wait){
+			let x = e.clientX/window.innerWidth;
+			let y = e.clientY/window.innerHeight;
+			mouseY = y;
+			colorChanger.update(x, y);
+      // wait = true;
+      // setTimeout(function(){ wait = false; },200);
+		}
 	})
 
 	addStats(debug);
@@ -122,4 +135,4 @@ const addGui = (debug, ambientLight) => {
 	}
 };
 
-init();
+export default {init, kill};
