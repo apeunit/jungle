@@ -58,7 +58,9 @@ const kill = () => {
   pool.clear();
   renderer.forceContextLoss();
 }
-const init = (canvas) => {
+
+const init = (canvas, mouseX = 0, mouseY = 0) => {
+	colorChanger.update(mouseX, mouseY);
 	prepareGeometries();
 	startTime = clock.getElapsedTime();
 	camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.3, 260);
