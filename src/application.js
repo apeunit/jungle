@@ -16,6 +16,8 @@ const debug = false;
 const bgColor = new THREE.Color(0.1, 0.1, 0.1);
 const clock = new THREE.Clock();
 
+let isPlay = true;
+
 let gui,
 	scene,
 	renderer,
@@ -112,12 +114,23 @@ const init = (canvas, mouseX = 0, mouseY = 0) => {
 };
 
 const animate = () => {
+	if (!isPlay) return;
+
 	requestAnimationFrame(animate);
 	stats.begin();
 	scenography.update(gui, mouseY);
 	pool.update(scenography.getCameraPositionOnSpline());
 	render();
 	stats.end();
+}
+
+const pause = () => {
+	isPlay = false;
+}
+
+const resume = (mouseX = 0, mouseY = 0) => {
+	colorChanger.update(mouseX, mouseY);
+	isPlay = true;
 }
 
 const render = () => {
