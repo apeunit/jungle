@@ -93,7 +93,7 @@ const init = (canvas, mouseX = 0, mouseY = 0) => {
 				HEIGHT = window.innerHeight;
 			renderer.setSize(WIDTH, HEIGHT);
 			camera.aspect = WIDTH / HEIGHT;
-			camera.updateProjectionMatrix();      
+			camera.updateProjectionMatrix();
 			// wait = true;
       // setTimeout(function(){ wait = false; },200);
 		}
@@ -131,6 +131,7 @@ const pause = () => {
 const resume = (mouseX = 0, mouseY = 0) => {
 	colorChanger.update(mouseX, mouseY);
 	isPlay = true;
+	animate();
 }
 
 const render = () => {
@@ -150,4 +151,4 @@ const addGui = (debug, ambientLight) => {
 	}
 };
 
-export default {init, kill};
+export default {init, kill, pause, resume};
